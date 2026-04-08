@@ -6,6 +6,16 @@ metadata:
   annotations:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/actions.forward: >
+      {
+        "Type":"forward",
+        "ForwardConfig":{
+          "TargetGroups":[
+            {"ServiceName":"blue-service","ServicePort":"80","Weight":100},
+            {"ServiceName":"green-service","ServicePort":"80","Weight":0}
+          ]
+        }
+      }
 spec:
   ingressClassName: alb
   rules:
