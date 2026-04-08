@@ -4,18 +4,39 @@ metadata:
   name: my-ingress
   namespace: prod
   annotations:
+    kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
+
+    # ✅ Health check config (VERY IMPORTANT)
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: "10"
+    alb.ingress.kubernetes.io/healthy-threshold-count: "2"
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: "2"
+
+    # ✅ Prevent connection drops during switch
+    alb.ingress.kubernetes.io/target-group-attributes: deregistration_delay.timeout_seconds=30
+
+    # ✅ Weighted routing (Blue-Green)
     alb.ingress.kubernetes.io/actions.forward: >
       {
         "Type":"forward",
         "ForwardConfig":{
           "TargetGroups":[
-            {"ServiceName":"blue-service","ServicePort":"80","Weight":100},
-            {"ServiceName":"green-service","ServicePort":"80","Weight":0}
+            {
+              "ServiceName":"blue-service",
+              "ServicePort":"80",
+              "Weight":100
+            },
+            {
+              "ServiceName":"green-service",
+              "ServicePort":"80",
+              "Weight":0
+            }
           ]
         }
       }
+
 spec:
   ingressClassName: alb
   rules:
@@ -25,6 +46,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: blue-service   # 👈 switch later
+            name: forward              # ✅ MUST match annotation name
             port:
-              number: 80
+              name: use-annotation     # ✅ REQUIRED
