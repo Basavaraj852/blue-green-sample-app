@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: app
-        image: 586337033275.dkr.ecr.ap-south-1.amazonaws.com/prod/blue-app:latest
+        image: 586337033275.dkr.ecr.ap-south-1.amazonaws.com/prod/green-app
         ports:
         - containerPort: 3000
         resources:
